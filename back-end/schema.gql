@@ -33,7 +33,6 @@ type Favorite {
   activityId: ID!
   id: ID!
   order: Int!
-  userId: ID!
 }
 
 type Mutation {
