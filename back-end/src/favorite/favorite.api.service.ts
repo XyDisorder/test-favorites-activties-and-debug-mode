@@ -18,6 +18,37 @@ export class FavoriteApiService {
   ) {}
 
   /**
+   * Gets all favorites for a user
+   * @param userId - The ID of the user (from JWT context)
+   * @returns all favorites for the user
+   * @throws HttpException if user not found, or if favorites cannot be retrieved
+   */
+  async getAllFavoritesByUserId(userId: User['id']): Promise<Favorite[]> {
+    if (!userId) {
+      throw new HttpException(
+        'UserId is required to get favorites',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    const user = await this.userService.getById(userId);
+    if (!user) {
+      throw new HttpException(
+        'User not found. Cannot get favorites.',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+    try {
+      return this.favoriteService.getAllByUserId(userId);
+    } catch (error) {
+      throw new HttpException(
+        'Failed to get favorites.',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  /**
    * Creates a new favorite for a user
    * @param userId - The ID of the user (from JWT context)
    * @param createFavoriteDto - The favorite data (activityId and order)

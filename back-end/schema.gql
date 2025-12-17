@@ -48,6 +48,7 @@ type Query {
   getActivitiesByCity(activity: String, city: String!, price: Int): [Activity!]!
   getActivitiesByUser: [Activity!]!
   getActivity(id: String!): Activity!
+  getAllFavoritesByUserId: [Favorite!]!
   getCities: [String!]!
   getLatestActivities: [Activity!]!
   getMe: User!

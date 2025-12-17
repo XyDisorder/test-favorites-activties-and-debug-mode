@@ -2,6 +2,7 @@ import {
   Args,
   Context,
   Mutation,
+  Query,
   Resolver,
   ID,
   Parent,
@@ -21,6 +22,16 @@ export class FavoriteResolver {
   @ResolveField(() => ID)
   id(@Parent() favorite: Favorite): string {
     return favorite._id.toString();
+  }
+
+  @Query(() => [Favorite])
+  @UseGuards(AuthGuard)
+  async getAllFavoritesByUserId(
+    @Context() context: ContextWithJWTPayload,
+  ): Promise<Favorite[]> {
+    return this.favoriteApiService.getAllFavoritesByUserId(
+      context.jwtPayload.id,
+    );
   }
 
   @Mutation(() => Favorite)

@@ -7,6 +7,7 @@ import {
   InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
+import { User } from 'src/user/user.schema';
 
 @Injectable()
 export class FavoriteService {
@@ -16,6 +17,24 @@ export class FavoriteService {
     @InjectModel(Favorite.name)
     private favoriteModel: Model<Favorite>,
   ) {}
+
+  /**
+   * Finds all favorites for a user
+   * @param userId - The ID of the user (from JWT context)
+   * @returns all favorites for the user
+   * @throws InternalServerErrorException if favorites cannot be retrieved
+   */
+  async getAllByUserId(userId: User['id']): Promise<Favorite[]> {
+    try {
+      return await this.favoriteModel
+        .find({ userId })
+        .sort({ order: 1 })
+        .exec();
+    } catch (error) {
+      this.logger.error('Failed to get favorites', error);
+      throw new InternalServerErrorException('Failed to get favorites');
+    }
+  }
 
   /**
    * Creates a new favorite in the database
