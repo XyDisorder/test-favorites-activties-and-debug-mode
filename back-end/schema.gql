@@ -19,13 +19,26 @@ input CreateActivityInput {
   price: Int!
 }
 
+input CreateFavoriteInput {
+  activityId: String!
+  order: Int!
+}
+
 """
 A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
 """
 scalar DateTime
 
+type Favorite {
+  activityId: ID!
+  id: ID!
+  order: Int!
+  userId: ID!
+}
+
 type Mutation {
   createActivity(createActivityInput: CreateActivityInput!): Activity!
+  createFavorite(createFavoriteInput: CreateFavoriteInput!): Favorite!
   login(signInInput: SignInInput!): SignInDto!
   logout: Boolean!
   register(signUpInput: SignUpInput!): User!
