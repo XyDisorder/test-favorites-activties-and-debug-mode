@@ -7,6 +7,7 @@ type Activity {
   createdAt: DateTime
   description: String!
   id: ID!
+  isFavorite: Boolean
   name: String!
   owner: User!
   price: Int!

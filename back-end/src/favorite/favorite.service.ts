@@ -59,6 +59,29 @@ export class FavoriteService {
   }
 
   /**
+   * Checks if a favorite exists for a user and activity
+   * @param userId - The ID of the user
+   * @param activityId - The ID of the activity
+   * @returns True if the favorite exists, false otherwise
+   * @throws InternalServerErrorException if check fails
+   */
+  async existsByUserIdAndActivityId(
+    userId: User['id'],
+    activityId: Activity['id'],
+  ): Promise<boolean> {
+    try {
+      const favorite = await this.favoriteModel.findOne({
+        userId,
+        activityId,
+      });
+      return favorite !== null;
+    } catch (error) {
+      this.logger.error('Failed to check favorite', error);
+      throw new InternalServerErrorException('Failed to check favorite');
+    }
+  }
+
+  /**
    * Deletes a favorite by userId and activityId
    * @param userId - The ID of the user
    * @param activityId - The ID of the activity

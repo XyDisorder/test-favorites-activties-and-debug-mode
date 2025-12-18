@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { Favorite, FavoriteSchema } from './favorite.schema';
 import { MongooseModule } from '@nestjs/mongoose';
 import { FavoriteResolver } from './favorite.resolver';
@@ -15,9 +15,9 @@ import { FavoriteService } from './favorite.service';
     ]),
     AuthModule,
     UserModule,
-    ActivityModule,
+    forwardRef(() => ActivityModule),
   ],
-  exports: [FavoriteApiService],
+  exports: [FavoriteApiService, FavoriteService],
   providers: [FavoriteApiService, FavoriteResolver, FavoriteService],
 })
 export class FavoriteModule {}
