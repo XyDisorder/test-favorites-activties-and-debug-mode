@@ -14,7 +14,6 @@ export type Scalars = {
   Boolean: { input: boolean; output: boolean; }
   Int: { input: number; output: number; }
   Float: { input: number; output: number; }
-  /** A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format. */
   DateTime: { input: any; output: any; }
 };
 
@@ -160,7 +159,7 @@ export type User = {
   password: Scalars['String']['output'];
 };
 
-export type ActivityFragment = { __typename?: 'Activity', id: string, city: string, description: string, name: string, price: number, owner: { __typename?: 'User', firstName: string, lastName: string } };
+export type ActivityFragment = { __typename?: 'Activity', id: string, city: string, description: string, name: string, price: number, isFavorite?: boolean | null, owner: { __typename?: 'User', firstName: string, lastName: string } };
 
 export type OwnerFragment = { __typename?: 'User', firstName: string, lastName: string };
 
@@ -190,10 +189,31 @@ export type SignupMutationVariables = Exact<{
 
 export type SignupMutation = { __typename?: 'Mutation', register: { __typename?: 'User', id: string, email: string, firstName: string, lastName: string } };
 
+export type CreateFavoriteMutationVariables = Exact<{
+  createFavoriteInput: CreateFavoriteInput;
+}>;
+
+
+export type CreateFavoriteMutation = { __typename?: 'Mutation', createFavorite: { __typename?: 'Favorite', id: string, activityId: string, order: number } };
+
+export type DeleteFavoriteMutationVariables = Exact<{
+  activityId: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteFavoriteMutation = { __typename?: 'Mutation', deleteFavorite: boolean };
+
+export type ReorderFavoritesMutationVariables = Exact<{
+  reorderFavoritesInput: ReorderFavoritesInput;
+}>;
+
+
+export type ReorderFavoritesMutation = { __typename?: 'Mutation', reorderFavorites: Array<{ __typename?: 'Favorite', id: string, order: number }> };
+
 export type GetActivitiesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetActivitiesQuery = { __typename?: 'Query', getActivities: Array<{ __typename?: 'Activity', id: string, city: string, description: string, name: string, price: number, owner: { __typename?: 'User', firstName: string, lastName: string } }> };
+export type GetActivitiesQuery = { __typename?: 'Query', getActivities: Array<{ __typename?: 'Activity', id: string, city: string, description: string, name: string, price: number, isFavorite?: boolean | null, owner: { __typename?: 'User', firstName: string, lastName: string } }> };
 
 export type GetActivitiesByCityQueryVariables = Exact<{
   activity?: InputMaybe<Scalars['String']['input']>;
@@ -202,24 +222,24 @@ export type GetActivitiesByCityQueryVariables = Exact<{
 }>;
 
 
-export type GetActivitiesByCityQuery = { __typename?: 'Query', getActivitiesByCity: Array<{ __typename?: 'Activity', id: string, city: string, description: string, name: string, price: number, owner: { __typename?: 'User', firstName: string, lastName: string } }> };
+export type GetActivitiesByCityQuery = { __typename?: 'Query', getActivitiesByCity: Array<{ __typename?: 'Activity', id: string, city: string, description: string, name: string, price: number, isFavorite?: boolean | null, owner: { __typename?: 'User', firstName: string, lastName: string } }> };
 
 export type GetActivityQueryVariables = Exact<{
   id: Scalars['String']['input'];
 }>;
 
 
-export type GetActivityQuery = { __typename?: 'Query', getActivity: { __typename?: 'Activity', id: string, city: string, description: string, name: string, price: number, owner: { __typename?: 'User', firstName: string, lastName: string } } };
+export type GetActivityQuery = { __typename?: 'Query', getActivity: { __typename?: 'Activity', id: string, city: string, description: string, name: string, price: number, isFavorite?: boolean | null, owner: { __typename?: 'User', firstName: string, lastName: string } } };
 
 export type GetLatestActivitiesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetLatestActivitiesQuery = { __typename?: 'Query', getLatestActivities: Array<{ __typename?: 'Activity', id: string, city: string, description: string, name: string, price: number, owner: { __typename?: 'User', firstName: string, lastName: string } }> };
+export type GetLatestActivitiesQuery = { __typename?: 'Query', getLatestActivities: Array<{ __typename?: 'Activity', id: string, city: string, description: string, name: string, price: number, isFavorite?: boolean | null, owner: { __typename?: 'User', firstName: string, lastName: string } }> };
 
 export type GetUserActivitiesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetUserActivitiesQuery = { __typename?: 'Query', getActivitiesByUser: Array<{ __typename?: 'Activity', id: string, city: string, description: string, name: string, price: number, owner: { __typename?: 'User', firstName: string, lastName: string } }> };
+export type GetUserActivitiesQuery = { __typename?: 'Query', getActivitiesByUser: Array<{ __typename?: 'Activity', id: string, city: string, description: string, name: string, price: number, isFavorite?: boolean | null, owner: { __typename?: 'User', firstName: string, lastName: string } }> };
 
 export type GetUserQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -230,6 +250,11 @@ export type GetCitiesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type GetCitiesQuery = { __typename?: 'Query', getCities: Array<string> };
+
+export type GetAllFavoritesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetAllFavoritesQuery = { __typename?: 'Query', getAllFavoritesByUserId: Array<{ __typename?: 'Favorite', id: string, activityId: string, order: number }> };
 
 
 
