@@ -17,6 +17,7 @@ describe('FavoriteService', () => {
     const mockFavoriteModel = {
       create: jest.fn(),
       find: jest.fn().mockReturnValue(mockFind),
+      findOne: jest.fn(),
       findOneAndDelete: jest.fn(),
     };
 
@@ -141,6 +142,56 @@ describe('FavoriteService', () => {
       userId: 'user-id',
       activityId: 'activity-id',
       order: 0,
+    });
+  });
+
+  it('should check if favorite exists by userId and activityId', async () => {
+    const mockFavorite = {
+      _id: { toString: () => 'favorite-id' },
+      userId: 'user-id',
+      activityId: 'activity-id',
+      order: 0,
+    };
+
+    favoriteModel.findOne.mockResolvedValue(mockFavorite as any);
+
+    const result = await service.existsByUserIdAndActivityId(
+      'user-id',
+      'activity-id',
+    );
+
+    expect(result).toBe(true);
+    expect(favoriteModel.findOne).toHaveBeenCalledWith({
+      userId: 'user-id',
+      activityId: 'activity-id',
+    });
+  });
+
+  it('should return false when favorite does not exist', async () => {
+    favoriteModel.findOne.mockResolvedValue(null);
+
+    const result = await service.existsByUserIdAndActivityId(
+      'user-id',
+      'non-existent-activity',
+    );
+
+    expect(result).toBe(false);
+    expect(favoriteModel.findOne).toHaveBeenCalledWith({
+      userId: 'user-id',
+      activityId: 'non-existent-activity',
+    });
+  });
+
+  it('should throw error when check favorite fails', async () => {
+    favoriteModel.findOne.mockRejectedValue(new Error('Database error'));
+
+    await expect(
+      service.existsByUserIdAndActivityId('user-id', 'activity-id'),
+    ).rejects.toThrow('Failed to check favorite');
+
+    expect(favoriteModel.findOne).toHaveBeenCalledWith({
+      userId: 'user-id',
+      activityId: 'activity-id',
     });
   });
 
