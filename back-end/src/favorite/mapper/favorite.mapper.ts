@@ -5,7 +5,7 @@ import { Favorite } from '../favorite.schema';
 export class FavoriteMapper {
   public static mapCreateFavoriteDtoToFavoriteSchema(
     userId: User['id'],
-    createFavoriteDto: Required<CreateFavoriteInput>,
+    createFavoriteDto: CreateFavoriteInput & { order: number },
   ): Required<Pick<Favorite, 'userId' | 'activityId' | 'order'>> {
     return {
       userId: userId,
