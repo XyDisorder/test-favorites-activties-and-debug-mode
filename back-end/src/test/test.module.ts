@@ -1,14 +1,26 @@
 import { MongooseModule, MongooseModuleOptions } from '@nestjs/mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { Module } from '@nestjs/common';
+import { Module, DynamicModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import * as path from 'path';
 
 let mongod: MongoMemoryServer;
 
-export const rootMongooseTestModule = (options: MongooseModuleOptions = {}) =>
+export const rootMongooseTestModule = (
+  options: MongooseModuleOptions = {},
+): DynamicModule =>
   MongooseModule.forRootAsync({
     useFactory: async () => {
-      mongod = await MongoMemoryServer.create();
+      // Use a custom directory in the project instead of system temp
+      const dbPath = path.join(process.cwd(), '.mongodb-memory-server');
+      mongod = await MongoMemoryServer.create({
+        instance: {
+          dbName: 'test',
+        },
+        binary: {
+          downloadDir: dbPath,
+        },
+      });
       const uri = mongod.getUri();
       return {
         uri,

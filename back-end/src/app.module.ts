@@ -14,6 +14,7 @@ import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { Request, Response } from 'express';
 import { PayloadDto } from './auth/types/jwtPayload.dto';
+import { FavoriteModule } from './favorite/favorite.module';
 
 @Module({
   imports: [
@@ -60,6 +61,7 @@ import { PayloadDto } from './auth/types/jwtPayload.dto';
     UserModule,
     MeModule,
     ActivityModule,
+    FavoriteModule,
     SeedModule,
   ],
   controllers: [AppController],

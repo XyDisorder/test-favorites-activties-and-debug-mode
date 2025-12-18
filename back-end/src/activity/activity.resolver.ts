@@ -18,12 +18,14 @@ import { Activity } from './activity.schema';
 import { CreateActivityInput } from './activity.inputs.dto';
 import { User } from 'src/user/user.schema';
 import { ContextWithJWTPayload } from 'src/auth/types/context';
+import { FavoriteService } from 'src/favorite/favorite.service';
 
 @Resolver(() => Activity)
 export class ActivityResolver {
   constructor(
     private readonly activityService: ActivityService,
     private readonly userServices: UserService,
+    private readonly favoriteService: FavoriteService,
   ) {}
 
   @ResolveField(() => ID)
@@ -35,6 +37,28 @@ export class ActivityResolver {
   async owner(@Parent() activity: Activity): Promise<User> {
     await activity.populate('owner');
     return activity.owner;
+  }
+
+  @ResolveField(() => Boolean, { nullable: true })
+  async isFavorite(
+    @Parent() activity: Activity,
+    @Context() context: ContextWithJWTPayload,
+  ): Promise<boolean | null> {
+    // If user is not authenticated, return null
+    if (!context.jwtPayload?.id) {
+      return null;
+    }
+
+    try {
+      return await this.favoriteService.existsByUserIdAndActivityId(
+        context.jwtPayload.id,
+        activity._id.toString(),
+      );
+    } catch (error) {
+      // If there's an error, return null instead of throwing
+      // This allows the query to still work even if favorite check fails
+      return null;
+    }
   }
 
   @Query(() => [Activity])
