@@ -41,9 +41,9 @@ interface AuthProviderProps {
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const snackbar = useSnackbar();
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState<GetUserQuery["getMe"] | null>(null);
-  const router = useRouter();
 
   const [getUser] = useLazyQuery<GetUserQuery, GetUserQueryVariables>(GetUser);
   const [signin] = useMutation<SigninMutation, SigninMutationVariables>(Signin);
