@@ -17,6 +17,7 @@ describe('FavoriteService', () => {
     const mockFavoriteModel = {
       create: jest.fn(),
       find: jest.fn().mockReturnValue(mockFind),
+      findOneAndDelete: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -140,6 +141,57 @@ describe('FavoriteService', () => {
       userId: 'user-id',
       activityId: 'activity-id',
       order: 0,
+    });
+  });
+
+  it('should delete a favorite by userId and activityId', async () => {
+    const mockDeletedFavorite = {
+      _id: { toString: () => 'favorite-id' },
+      userId: 'user-id',
+      activityId: 'activity-id',
+      order: 0,
+    };
+
+    favoriteModel.findOneAndDelete.mockResolvedValue(
+      mockDeletedFavorite as any,
+    );
+
+    const result = await service.deleteByIds('user-id', 'activity-id');
+
+    expect(result).toBe(true);
+    expect(favoriteModel.findOneAndDelete).toHaveBeenCalledWith({
+      userId: 'user-id',
+      activityId: 'activity-id',
+    });
+  });
+
+  it('should return false when favorite does not exist', async () => {
+    favoriteModel.findOneAndDelete.mockResolvedValue(null);
+
+    const result = await service.deleteByIds(
+      'user-id',
+      'non-existent-activity',
+    );
+
+    expect(result).toBe(false);
+    expect(favoriteModel.findOneAndDelete).toHaveBeenCalledWith({
+      userId: 'user-id',
+      activityId: 'non-existent-activity',
+    });
+  });
+
+  it('should throw error when delete fails', async () => {
+    favoriteModel.findOneAndDelete.mockRejectedValue(
+      new Error('Database error'),
+    );
+
+    await expect(service.deleteByIds('user-id', 'activity-id')).rejects.toThrow(
+      'Failed to delete favorite',
+    );
+
+    expect(favoriteModel.findOneAndDelete).toHaveBeenCalledWith({
+      userId: 'user-id',
+      activityId: 'activity-id',
     });
   });
 });
