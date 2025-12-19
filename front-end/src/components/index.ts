@@ -1,4 +1,5 @@
 export * from "./Activity";
+export * from "./ActivityDebugInfo";
 export * from "./ActivityListItem";
 export * from "./City";
 export * from "./EmptyData";

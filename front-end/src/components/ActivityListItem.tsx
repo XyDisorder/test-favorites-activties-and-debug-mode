@@ -1,7 +1,9 @@
 import { ActivityFragment } from "@/graphql/generated/types";
+import { useIsAdmin } from "@/hooks";
 import { useGlobalStyles } from "@/utils";
 import { Box, Button, Flex, Image, Text } from "@mantine/core";
 import Link from "next/link";
+import { ActivityDebugInfo } from "./ActivityDebugInfo";
 import { FavoriteButton } from "./FavoriteButton";
 
 interface ActivityListItemProps {
@@ -10,6 +12,7 @@ interface ActivityListItemProps {
 
 export function ActivityListItem({ activity }: ActivityListItemProps) {
   const { classes } = useGlobalStyles();
+  const isAdmin = useIsAdmin();
 
   return (
     <Flex align="center" justify="space-between">
@@ -29,6 +32,7 @@ export function ActivityListItem({ activity }: ActivityListItemProps) {
             weight="bold"
             className={classes.ellipsis}
           >{`${activity.price}€/j`}</Text>
+          {isAdmin && <ActivityDebugInfo createdAt={activity.createdAt} />}
         </Box>
       </Flex>
       <Flex gap="sm" align="center">

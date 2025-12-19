@@ -88,4 +88,96 @@ describe('App e2e', () => {
       lastName: 'lastName',
     });
   });
+
+  test('getMe should return role field', async () => {
+    // Use existing seed user data
+    const email = 'user1@test.fr';
+    const password = 'user1';
+
+    // Sign in with existing user
+    const signInResponse = await request(app.getHttpServer())
+      .post('/graphql')
+      .send({
+        query: `
+          mutation {
+            login(signInInput:{ email: "${email}", password: "${password}" }) {
+              access_token
+            }
+          }
+        `,
+      })
+      .expect(200);
+
+    const jwt = signInResponse.body.data.login.access_token;
+
+    // Get user with role
+    const getMeResponse = await request(app.getHttpServer())
+      .post('/graphql')
+      .set('jwt', jwt)
+      .send({
+        query: `
+          query {
+            getMe {
+              id
+              email
+              role
+            }
+          }
+        `,
+      })
+      .expect(200);
+
+    expect(getMeResponse.body.data.getMe).toMatchObject({
+      id: expect.any(String),
+      email,
+      role: 'user',
+    });
+  });
+
+  test('activities should return createdAt field', async () => {
+    // Use existing seed user data
+    const email = 'user1@test.fr';
+    const password = 'user1';
+
+    // Sign in with existing user
+    const signInResponse = await request(app.getHttpServer())
+      .post('/graphql')
+      .send({
+        query: `
+          mutation {
+            login(signInInput:{ email: "${email}", password: "${password}" }) {
+              access_token
+            }
+          }
+        `,
+      })
+      .expect(200);
+
+    const jwt = signInResponse.body.data.login.access_token;
+
+    // Get activities (seed data should already exist) and check createdAt
+    const getActivitiesResponse = await request(app.getHttpServer())
+      .post('/graphql')
+      .set('jwt', jwt)
+      .send({
+        query: `
+          query {
+            getActivities {
+              id
+              name
+              createdAt
+            }
+          }
+        `,
+      })
+      .expect(200);
+
+    expect(getActivitiesResponse.body.data.getActivities).toBeInstanceOf(Array);
+    expect(
+      getActivitiesResponse.body.data.getActivities.length,
+    ).toBeGreaterThan(0);
+    const activity = getActivitiesResponse.body.data.getActivities[0];
+    expect(activity).toHaveProperty('createdAt');
+    expect(activity.createdAt).toBeDefined();
+  });
 });

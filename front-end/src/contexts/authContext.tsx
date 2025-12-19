@@ -19,7 +19,7 @@ import { useLazyQuery, useMutation } from "@apollo/client";
 import { useRouter } from "next/router";
 import { createContext, useEffect, useState } from "react";
 
-interface AuthContextType {
+export interface AuthContextType {
   user: GetUserQuery["getMe"] | null;
   isLoading: boolean;
   handleSignin: (input: SignInInput) => Promise<void>;
@@ -60,6 +60,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     } else {
       setIsLoading(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   const handleSignin = async (input: SignInInput) => {
