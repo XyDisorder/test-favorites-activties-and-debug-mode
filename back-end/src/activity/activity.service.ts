@@ -11,19 +11,69 @@ export class ActivityService {
     private activityModel: Model<Activity>,
   ) {}
 
-  async findAll(): Promise<Activity[]> {
-    return this.activityModel.find().sort({ createdAt: -1 }).exec();
+  async findAll(
+    page = 1,
+    limit = 10,
+  ): Promise<{
+    items: Activity[];
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  }> {
+    const skip = (page - 1) * limit;
+    const [items, total] = await Promise.all([
+      this.activityModel
+        .find()
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .exec(),
+      this.activityModel.countDocuments().exec(),
+    ]);
+
+    return {
+      items,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
   }
 
   async findLatest(): Promise<Activity[]> {
     return this.activityModel.find().sort({ createdAt: -1 }).limit(3).exec();
   }
 
-  async findByUser(userId: string): Promise<Activity[]> {
-    return this.activityModel
-      .find({ owner: userId })
-      .sort({ createdAt: -1 })
-      .exec();
+  async findByUser(
+    userId: string,
+    page = 1,
+    limit = 10,
+  ): Promise<{
+    items: Activity[];
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  }> {
+    const skip = (page - 1) * limit;
+    const [items, total] = await Promise.all([
+      this.activityModel
+        .find({ owner: userId })
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .exec(),
+      this.activityModel.countDocuments({ owner: userId }).exec(),
+    ]);
+
+    return {
+      items,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
   }
 
   async findOne(id: string): Promise<Activity> {
@@ -52,16 +102,36 @@ export class ActivityService {
     city: string,
     activity?: string,
     price?: number,
-  ): Promise<Activity[]> {
-    return this.activityModel
-      .find({
-        $and: [
-          { city },
-          ...(price ? [{ price }] : []),
-          ...(activity ? [{ name: { $regex: activity, $options: 'i' } }] : []),
-        ],
-      })
-      .exec();
+    page = 1,
+    limit = 10,
+  ): Promise<{
+    items: Activity[];
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  }> {
+    const skip = (page - 1) * limit;
+    const query = {
+      $and: [
+        { city },
+        ...(price ? [{ price }] : []),
+        ...(activity ? [{ name: { $regex: activity, $options: 'i' } }] : []),
+      ],
+    };
+
+    const [items, total] = await Promise.all([
+      this.activityModel.find(query).skip(skip).limit(limit).exec(),
+      this.activityModel.countDocuments(query).exec(),
+    ]);
+
+    return {
+      items,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
   }
 
   async countDocuments(): Promise<number> {

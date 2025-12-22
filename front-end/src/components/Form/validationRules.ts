@@ -1,6 +1,8 @@
 type ValidationRule<T> = (value: T) => string | null;
 
-const isValidEmail = (value: string) => /^\S+@\S+$/.test(value);
+// Improved email validation regex - matches backend validation
+const isValidEmail = (value: string) =>
+  /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 const isValidString = (value: string) => value.length > 0;
 const isNumberGreaterThanZero = (value: number) => value > 0;
 

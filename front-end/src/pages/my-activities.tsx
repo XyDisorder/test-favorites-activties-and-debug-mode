@@ -13,7 +13,7 @@ import Head from "next/head";
 import Link from "next/link";
 
 interface MyActivitiesProps {
-  activities: GetUserActivitiesQuery["getActivitiesByUser"];
+  activities: GetUserActivitiesQuery["getActivitiesByUser"]["items"];
 }
 
 export const getServerSideProps: GetServerSideProps<
@@ -24,9 +24,10 @@ export const getServerSideProps: GetServerSideProps<
     GetUserActivitiesQueryVariables
   >({
     query: GetUserActivities,
+    variables: { page: 1, limit: 10 },
     context: { headers: { Cookie: req.headers.cookie } },
   });
-  return { props: { activities: response.data.getActivitiesByUser } };
+  return { props: { activities: response.data.getActivitiesByUser.items } };
 };
 
 const MyActivities = ({ activities }: MyActivitiesProps) => {

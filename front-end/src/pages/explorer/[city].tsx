@@ -14,7 +14,7 @@ import { useRouter } from "next/router";
 import { Fragment, useEffect, useState } from "react";
 
 interface CityDetailsProps {
-  activities: GetActivitiesByCityQuery["getActivitiesByCity"];
+  activities: GetActivitiesByCityQuery["getActivitiesByCity"]["items"];
   city: string;
 }
 
@@ -37,12 +37,14 @@ export const getServerSideProps: GetServerSideProps<CityDetailsProps> = async ({
     query: GetActivitiesByCity,
     variables: {
       city: params.city,
-      activity: query.activity || null,
-      price: query.price ? Number(query.price) : null,
+      page: 1,
+      limit: 10,
+      activity: query.activity || undefined,
+      price: query.price ? Number(query.price) : undefined,
     },
   });
   return {
-    props: { activities: response.data.getActivitiesByCity, city: params.city },
+    props: { activities: response.data.getActivitiesByCity.items, city: params.city },
   };
 };
 

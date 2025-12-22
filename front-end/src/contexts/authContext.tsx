@@ -56,7 +56,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       getUser()
         .then((res) => setUser(res.data?.getMe || null))
         .catch(() => {
-          // User not authenticated, ignore error
+          // User not authenticated, ignore error silently
         })
         .finally(() => setIsLoading(false));
     } else {
@@ -72,8 +72,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       // Token is now stored in httpOnly cookie by the backend
       await getUser().then((res) => setUser(res.data?.getMe || null));
       router.push("/profil");
-    } catch (err) {
-      snackbar.error("Une erreur est survenue");
+    } catch (err: any) {
+      const errorMessage =
+        err?.graphQLErrors?.[0]?.message ||
+        err?.networkError?.message ||
+        err?.message ||
+        "Une erreur est survenue lors de la connexion";
+      snackbar.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -83,9 +88,15 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     try {
       setIsLoading(true);
       await signup({ variables: { signUpInput: input } });
+      snackbar.success("Compte créé avec succès !");
       router.push("/signin");
-    } catch (err) {
-      snackbar.error("Une erreur est survenue");
+    } catch (err: any) {
+      const errorMessage =
+        err?.graphQLErrors?.[0]?.message ||
+        err?.networkError?.message ||
+        err?.message ||
+        "Une erreur est survenue lors de l'inscription";
+      snackbar.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -98,8 +109,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       // Cookie is cleared by the backend
       setUser(null);
       router.push("/");
-    } catch (err) {
-      snackbar.error("Une erreur est survenue");
+    } catch (err: any) {
+      const errorMessage =
+        err?.graphQLErrors?.[0]?.message ||
+        err?.networkError?.message ||
+        err?.message ||
+        "Une erreur est survenue lors de la déconnexion";
+      snackbar.error(errorMessage);
     } finally {
       setIsLoading(false);
     }

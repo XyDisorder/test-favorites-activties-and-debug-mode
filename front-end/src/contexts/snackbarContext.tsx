@@ -25,7 +25,10 @@ export const SnackbarProvider = ({
   const [snackbar, setSnackbar] = useState<Snackbar | null>(null);
 
   const error = (message: string) => {
-    console.error(message);
+    // Only log in development
+    if (process.env.NODE_ENV === "development") {
+      console.error(message);
+    }
     setSnackbar({ message, type: "error" });
   };
 

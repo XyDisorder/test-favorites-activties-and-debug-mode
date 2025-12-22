@@ -12,7 +12,7 @@ import Head from "next/head";
 import Link from "next/link";
 
 interface DiscoverProps {
-  activities: GetActivitiesQuery["getActivities"];
+  activities: GetActivitiesQuery["getActivities"]["items"];
 }
 
 export const getServerSideProps: GetServerSideProps<
@@ -23,8 +23,9 @@ export const getServerSideProps: GetServerSideProps<
     GetActivitiesQueryVariables
   >({
     query: GetActivities,
+    variables: { page: 1, limit: 10 },
   });
-  return { props: { activities: response.data.getActivities } };
+  return { props: { activities: response.data.getActivities.items } };
 };
 
 export default function Discover({ activities }: DiscoverProps) {

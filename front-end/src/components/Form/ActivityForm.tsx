@@ -58,10 +58,14 @@ export default function ActivityForm() {
           setDisplayedCities(data.map((d) => ({ value: d.nom, label: d.nom })));
         })
         .catch((err) => {
-          snackbar.error(err?.message || "Une erreur est survenue");
+          const errorMessage =
+            err?.message || "Une erreur est survenue lors de la recherche de ville";
+          snackbar.error(errorMessage);
         });
+    } else {
+      setDisplayedCities([]);
     }
-  }, [debouncedSearch, searchValue, snackbar]);
+  }, [debouncedSearch, snackbar]);
 
   const handleSubmit = async (values: CreateActivityInput) => {
     try {
@@ -71,9 +75,15 @@ export default function ActivityForm() {
           createActivityInput: { ...values, price: Number(values.price) },
         },
       });
+      snackbar.success("Activité créée avec succès !");
       router.back();
-    } catch (err) {
-      snackbar.error("Une erreur est survenue");
+    } catch (err: any) {
+      const errorMessage =
+        err?.graphQLErrors?.[0]?.message ||
+        err?.networkError?.message ||
+        err?.message ||
+        "Une erreur est survenue lors de la création de l'activité";
+      snackbar.error(errorMessage);
     } finally {
       setIsLoading(false);
     }

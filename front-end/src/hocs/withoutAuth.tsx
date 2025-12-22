@@ -3,9 +3,10 @@ import { Box, Loader } from "@mantine/core";
 import { useRouter } from "next/router";
 import { ComponentType, useEffect } from "react";
 
-export function withoutAuth(WrappedComponent: ComponentType<any>) {
-  // eslint-disable-next-line react/display-name
-  return (props: any) => {
+export function withoutAuth<P extends object>(
+  WrappedComponent: ComponentType<P>
+) {
+  const UnauthenticatedComponent = (props: P) => {
     const { user, isLoading } = useAuth();
     const router = useRouter();
 
@@ -24,4 +25,8 @@ export function withoutAuth(WrappedComponent: ComponentType<any>) {
 
     return !isLoading && !user && <WrappedComponent {...props} />;
   };
+
+  UnauthenticatedComponent.displayName = `withoutAuth(${WrappedComponent.displayName || WrappedComponent.name || 'Component'})`;
+
+  return UnauthenticatedComponent;
 }

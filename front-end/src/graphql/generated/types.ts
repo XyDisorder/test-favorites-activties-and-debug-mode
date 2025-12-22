@@ -58,11 +58,20 @@ export type MutationRegisterArgs = {
   signUpInput: SignUpInput;
 };
 
+export type PaginatedActivities = {
+  __typename?: 'PaginatedActivities';
+  items: Array<Activity>;
+  limit: Scalars['Int']['output'];
+  page: Scalars['Int']['output'];
+  total: Scalars['Int']['output'];
+  totalPages: Scalars['Int']['output'];
+};
+
 export type Query = {
   __typename?: 'Query';
-  getActivities: Array<Activity>;
-  getActivitiesByCity: Array<Activity>;
-  getActivitiesByUser: Array<Activity>;
+  getActivities: PaginatedActivities;
+  getActivitiesByCity: PaginatedActivities;
+  getActivitiesByUser: PaginatedActivities;
   getActivity: Activity;
   getCities: Array<Scalars['String']['output']>;
   getLatestActivities: Array<Activity>;
@@ -70,10 +79,24 @@ export type Query = {
 };
 
 
+export type QueryGetActivitiesArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  page?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
 export type QueryGetActivitiesByCityArgs = {
   activity?: InputMaybe<Scalars['String']['input']>;
   city: Scalars['String']['input'];
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  page?: InputMaybe<Scalars['Int']['input']>;
   price?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+export type QueryGetActivitiesByUserArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  page?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
@@ -137,19 +160,24 @@ export type SignupMutationVariables = Exact<{
 
 export type SignupMutation = { __typename?: 'Mutation', register: { __typename?: 'User', id: string, email: string, firstName: string, lastName: string } };
 
-export type GetActivitiesQueryVariables = Exact<{ [key: string]: never; }>;
+export type GetActivitiesQueryVariables = Exact<{
+  page?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+}>;
 
 
-export type GetActivitiesQuery = { __typename?: 'Query', getActivities: Array<{ __typename?: 'Activity', id: string, city: string, description: string, name: string, price: number, owner: { __typename?: 'User', firstName: string, lastName: string } }> };
+export type GetActivitiesQuery = { __typename?: 'Query', getActivities: { __typename?: 'PaginatedActivities', total: number, page: number, limit: number, totalPages: number, items: Array<{ __typename?: 'Activity', id: string, city: string, description: string, name: string, price: number, owner: { __typename?: 'User', firstName: string, lastName: string } }> } };
 
 export type GetActivitiesByCityQueryVariables = Exact<{
-  activity?: InputMaybe<Scalars['String']['input']>;
   city: Scalars['String']['input'];
+  page?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  activity?: InputMaybe<Scalars['String']['input']>;
   price?: InputMaybe<Scalars['Int']['input']>;
 }>;
 
 
-export type GetActivitiesByCityQuery = { __typename?: 'Query', getActivitiesByCity: Array<{ __typename?: 'Activity', id: string, city: string, description: string, name: string, price: number, owner: { __typename?: 'User', firstName: string, lastName: string } }> };
+export type GetActivitiesByCityQuery = { __typename?: 'Query', getActivitiesByCity: { __typename?: 'PaginatedActivities', total: number, page: number, limit: number, totalPages: number, items: Array<{ __typename?: 'Activity', id: string, city: string, description: string, name: string, price: number, owner: { __typename?: 'User', firstName: string, lastName: string } }> } };
 
 export type GetActivityQueryVariables = Exact<{
   id: Scalars['String']['input'];
@@ -163,10 +191,13 @@ export type GetLatestActivitiesQueryVariables = Exact<{ [key: string]: never; }>
 
 export type GetLatestActivitiesQuery = { __typename?: 'Query', getLatestActivities: Array<{ __typename?: 'Activity', id: string, city: string, description: string, name: string, price: number, owner: { __typename?: 'User', firstName: string, lastName: string } }> };
 
-export type GetUserActivitiesQueryVariables = Exact<{ [key: string]: never; }>;
+export type GetUserActivitiesQueryVariables = Exact<{
+  page?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+}>;
 
 
-export type GetUserActivitiesQuery = { __typename?: 'Query', getActivitiesByUser: Array<{ __typename?: 'Activity', id: string, city: string, description: string, name: string, price: number, owner: { __typename?: 'User', firstName: string, lastName: string } }> };
+export type GetUserActivitiesQuery = { __typename?: 'Query', getActivitiesByUser: { __typename?: 'PaginatedActivities', total: number, page: number, limit: number, totalPages: number, items: Array<{ __typename?: 'Activity', id: string, city: string, description: string, name: string, price: number, owner: { __typename?: 'User', firstName: string, lastName: string } }> } };
 
 export type GetUserQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -256,6 +287,7 @@ export type ResolversTypes = {
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
   Mutation: ResolverTypeWrapper<{}>;
+  PaginatedActivities: ResolverTypeWrapper<PaginatedActivities>;
   Query: ResolverTypeWrapper<{}>;
   SignInDto: ResolverTypeWrapper<SignInDto>;
   SignInInput: SignInInput;
@@ -273,6 +305,7 @@ export type ResolversParentTypes = {
   ID: Scalars['ID']['output'];
   Int: Scalars['Int']['output'];
   Mutation: {};
+  PaginatedActivities: PaginatedActivities;
   Query: {};
   SignInDto: SignInDto;
   SignInInput: SignInInput;
@@ -303,10 +336,19 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   register?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationRegisterArgs, 'signUpInput'>>;
 };
 
+export type PaginatedActivitiesResolvers<ContextType = any, ParentType extends ResolversParentTypes['PaginatedActivities'] = ResolversParentTypes['PaginatedActivities']> = {
+  items?: Resolver<Array<ResolversTypes['Activity']>, ParentType, ContextType>;
+  limit?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  page?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  total?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  totalPages?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
-  getActivities?: Resolver<Array<ResolversTypes['Activity']>, ParentType, ContextType>;
-  getActivitiesByCity?: Resolver<Array<ResolversTypes['Activity']>, ParentType, ContextType, RequireFields<QueryGetActivitiesByCityArgs, 'city'>>;
-  getActivitiesByUser?: Resolver<Array<ResolversTypes['Activity']>, ParentType, ContextType>;
+  getActivities?: Resolver<ResolversTypes['PaginatedActivities'], ParentType, ContextType, RequireFields<QueryGetActivitiesArgs, 'limit' | 'page'>>;
+  getActivitiesByCity?: Resolver<ResolversTypes['PaginatedActivities'], ParentType, ContextType, RequireFields<QueryGetActivitiesByCityArgs, 'city' | 'limit' | 'page'>>;
+  getActivitiesByUser?: Resolver<ResolversTypes['PaginatedActivities'], ParentType, ContextType, RequireFields<QueryGetActivitiesByUserArgs, 'limit' | 'page'>>;
   getActivity?: Resolver<ResolversTypes['Activity'], ParentType, ContextType, RequireFields<QueryGetActivityArgs, 'id'>>;
   getCities?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   getLatestActivities?: Resolver<Array<ResolversTypes['Activity']>, ParentType, ContextType>;
@@ -331,6 +373,7 @@ export type Resolvers<ContextType = any> = {
   Activity?: ActivityResolvers<ContextType>;
   DateTime?: GraphQLScalarType;
   Mutation?: MutationResolvers<ContextType>;
+  PaginatedActivities?: PaginatedActivitiesResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   SignInDto?: SignInDtoResolvers<ContextType>;
   User?: UserResolvers<ContextType>;

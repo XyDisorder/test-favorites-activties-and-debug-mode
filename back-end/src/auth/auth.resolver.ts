@@ -10,6 +10,13 @@ interface GraphQLContext {
   res: Response;
 }
 
+interface CookieOptions {
+  httpOnly: boolean;
+  secure: boolean;
+  sameSite: 'strict' | 'lax' | 'none';
+  domain?: string;
+}
+
 @Resolver('Auth')
 export class AuthResolver {
   constructor(private authService: AuthService) {}
@@ -21,7 +28,7 @@ export class AuthResolver {
     @Context() ctx: GraphQLContext,
   ): Promise<SignInDto> {
     const data = await this.authService.signIn(loginUserDto);
-    const cookieOptions: any = {
+    const cookieOptions: CookieOptions = {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
@@ -45,7 +52,7 @@ export class AuthResolver {
 
   @Mutation(() => Boolean)
   async logout(@Context() ctx: GraphQLContext): Promise<boolean> {
-    const cookieOptions: any = {
+    const cookieOptions: CookieOptions = {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
