@@ -26,9 +26,6 @@ export class User extends Document {
   @Field()
   @Prop({ required: true })
   password!: string;
-
-  @Prop()
-  token?: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

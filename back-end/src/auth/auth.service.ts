@@ -26,8 +26,6 @@ export class AuthService {
 
     const token = await this.generateToken({ user });
 
-    await this.userService.updateToken(user.id, token);
-
     return { access_token: token };
   }
 

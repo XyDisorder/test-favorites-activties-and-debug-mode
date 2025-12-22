@@ -1,4 +1,4 @@
-import { Module, UnauthorizedException } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ActivityModule } from './activity/activity.module';
@@ -14,10 +14,19 @@ import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { Request, Response } from 'express';
 import { PayloadDto } from './auth/types/jwtPayload.dto';
+import { ThrottlerModule } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
+import { ThrottlerGqlGuard } from './auth/throttler-gql.guard';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60000, // Time window in milliseconds (1 minute)
+        limit: 10, // Maximum number of requests per time window
+      },
+    ]),
     GraphQLModule.forRootAsync<ApolloDriverConfig>({
       driver: ApolloDriver,
       imports: [JwtModule],
@@ -26,11 +35,11 @@ import { PayloadDto } from './auth/types/jwtPayload.dto';
         jwtService: JwtService,
         configService: ConfigService,
       ) => {
-        const secret = configService.get<string>('JWT_SECRET');
+        const secret = configService.getOrThrow<string>('JWT_SECRET');
         return {
           autoSchemaFile: 'schema.gql',
           sortSchema: true,
-          playground: true,
+          playground: process.env.NODE_ENV !== 'production',
           buildSchemaOptions: { numberScalarMode: 'integer' },
           context: async ({ req, res }: { req: Request; res: Response }) => {
             const token =
@@ -43,7 +52,8 @@ import { PayloadDto } from './auth/types/jwtPayload.dto';
                   secret,
                 })) as PayloadDto;
               } catch (error) {
-                throw new UnauthorizedException(error);
+                // Invalid token - set to null, let guards handle authentication
+                jwtPayload = null;
               }
             }
 
@@ -63,7 +73,14 @@ import { PayloadDto } from './auth/types/jwtPayload.dto';
     SeedModule,
   ],
   controllers: [AppController],
-  providers: [AppService, SeedService],
+  providers: [
+    AppService,
+    SeedService,
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGqlGuard,
+    },
+  ],
 })
 export class BaseAppModule {}
 
@@ -71,8 +88,9 @@ export class BaseAppModule {}
   imports: [
     BaseAppModule,
     MongooseModule.forRootAsync({
-      useFactory: () => {
-        return { uri: process.env.MONGO_URI };
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => {
+        return { uri: configService.getOrThrow<string>('MONGO_URI') };
       },
     }),
   ],

@@ -12,7 +12,8 @@ import { ConfigService } from '@nestjs/config';
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => {
         const secret = configService.get<string>('JWT_SECRET');
-        const expirationTime = configService.get<string>('JWT_EXPIRATION_TIME');
+        const expirationTime =
+          configService.get<string>('JWT_EXPIRATION_TIME') || '86400'; // Default: 24 hours
 
         return {
           global: true,

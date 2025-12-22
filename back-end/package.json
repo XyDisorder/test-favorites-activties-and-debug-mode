@@ -23,6 +23,11 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "bcrypt"
+    ]
+  },
   "dependencies": {
     "@apollo/gateway": "^2.6.2",
     "@apollo/server": "^4.10.0",
@@ -34,6 +39,7 @@
     "@nestjs/jwt": "^10.1.0",
     "@nestjs/mongoose": "^10.0.0",
     "@nestjs/platform-express": "^10.0.0",
+    "@nestjs/throttler": "^6.5.0",
     "bcrypt": "^5.1.1",
     "class-transformer": "^0.5.1",
     "class-transformer-validator": "^0.9.1",

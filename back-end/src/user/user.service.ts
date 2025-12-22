@@ -42,15 +42,6 @@ export class UserService {
     return user.save();
   }
 
-  async updateToken(id: string, token: string): Promise<User> {
-    const user = await this.userModel.findById(id).exec();
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-    user.token = token;
-    return user.save();
-  }
-
   async countDocuments(): Promise<number> {
     return this.userModel.countDocuments().exec();
   }
